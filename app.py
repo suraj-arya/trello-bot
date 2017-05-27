@@ -7,12 +7,18 @@ import os
 import json
 
 from flask import Flask, request
-
-from .change_list import change_list
+from trello import TrelloClient
 
 
 app = Flask(__name__)
 # web_hook_secret_key = os.environ.get('WEBHOOK_SECRET_KEY')
+# testing
+
+client = TrelloClient(
+    api_key=os.environ.get('TRELLO_API_KEY'),
+    api_secret=os.environ.get('TRELLO_SECRET_KEY'),
+    token=os.environ.get('TRELLO_OAUTH_TOKEN'),
+    token_secret=os.environ.get('TRELLO_TOKEN_SECRET'))
 
 
 @app.route("/", methods=['GET'])
@@ -24,14 +30,16 @@ def hello():
 def index():
     data = json.loads(request.data)
     header = request.headers.get('X-GitHub-Event', '').strip()
-    print(data)
+    print(request.headers)
+    print('header: {}'.format(header))
+    # print(data)
 
     if header != 'pull_request':
         return 'NOOP'
 
     action = data.get('action')
     move_to = None
-    if action == 'open':
+    if action == 'opened':
         move_to = os.environ.get('UNDER_REVIEW_LIST_ID')
 
     elif action == 'closed':
@@ -56,7 +64,8 @@ def index():
 
     if None not in (card_id, move_to):
         try:
-            change_list(card_id, move_to)
+            card = client.get_card(card_id)
+            card.change_list(move_to)
         except Exception as e:
             print(e.message)
             return '', 500
