@@ -1,7 +1,8 @@
 # trello-bot
 ------------
 
-A trello bot to move your trello cards around for you, so that you get more free time to debate and discuss about git commit frequency. 
+A trello bot to move your trello cards around for you, so that you get more free time to debate and discuss about git commit frequency.
+A hackathon project. 
 
 
 ## how does it work?
